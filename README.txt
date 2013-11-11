@@ -36,7 +36,7 @@ If you want even more functionality, like including custom fields in Yoast's aut
 
 == Changelog ==
 
-= 1.0 =
+= 2.1.1 =
 * First public release
 
 == Upgrade Notice ==
