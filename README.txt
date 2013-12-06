@@ -36,6 +36,9 @@ If you want even more functionality, like including custom fields in Yoast's aut
 
 == Changelog ==
 
+= 2.1.2 =
+* Added custom field support to the live, at-a-glance keyword stats on the General tab of the Yoast metabox
+
 = 2.1.1 =
 * First public release
 

@@ -4,7 +4,7 @@ Plugin Name: NS Custom Fields Analysis for WordPress SEO
 Plugin URI: http://neversettle.it
 Description: Include content from custom fields in the Yoast WordPress SEO plugin keyword analysis (WordPress SEO by Yoast is required).
 Author: Never Settle
-Version: 1.0.0
+Version: 2.1.2
 Author URI: http://neversettle.it
 License: GPLv2 or later
 */
@@ -48,6 +48,7 @@ class NS_SEO_Custom_Fields {
 		add_action( 'admin_init', array($this,'register_settings_field') );
 		add_action( 'admin_menu', array($this,'register_settings_page'), 20 );
 		add_action( 'admin_enqueue_scripts', array($this, 'admin_assets') );
+		add_action( 'admin_print_footer_scripts', array($this, 'add_javascript'), 100 );
 		add_filter( 'wpseo_pre_analysis_post_content', array($this,'add_fields_to_analysis') );
 		
 		register_deactivation_hook( __FILE__, create_function('','delete_option("ns_seo_custom_installed");') );
@@ -234,6 +235,80 @@ class NS_SEO_Custom_Fields {
 			$content .= " " . get_post_meta( $post_id, $fieldname, true );
 		}
 		return $content;
+	}
+		
+	// Replace yoast keyword analysis javascript function to support custom fields
+	function add_javascript(){
+	  $fieldnames = get_option('ns_seo_custom_fieldname');
+	  if( !empty($fieldnames) ){ ?>
+		<script>
+		jQuery(function($){
+			$('.deletemeta').click(function(){
+				$(this).parents('tr').find('input[type=text]').addClass('deleted');
+			});
+			$('#newmeta-submit').click( testFocusKw );
+			$('#yoast_wpseo_focuskw').keyup( testFocusKw );
+			$('#postcustomstuff, .acf_postbox').find('input,textarea,select').change( testFocusKw )
+		})
+		function testFocusKw() {
+			// don't try to run if L10n isn't loaded
+			if(typeof objectL10n =='undefined') return;
+					
+		    // Retrieve focus keyword and trim
+		    var focuskw = jQuery.trim( jQuery('#yoast_wpseo_focuskw').val() );
+		    focuskw = focuskw.toLowerCase();
+		
+		    var postname = jQuery('#editable-post-name-full').text();
+		    var url	= wpseo_permalink_template.replace('%postname%', postname).replace('http://','');
+		
+		    p = new RegExp("(^|[ \s\n\r\t\.,'\(\"\+;!?:\-])"+focuskw+"($|[ \s\n\r\t.,'\)\"\+!?:;\-])",'gim');
+		    //remove diacritics of a lower cased focuskw for url matching in foreign lang
+		    var focuskwNoDiacritics = removeLowerCaseDiacritics( focuskw );
+		    p2 = new RegExp(focuskwNoDiacritics.replace(/\s+/g,"[-_\\\//]"),'gim');
+		
+		    var metadesc = jQuery('#yoast_wpseo_metadesc').val();
+		    if ( metadesc == '' )
+		        metadesc = jQuery('#wpseosnippet .desc').text();
+		    
+		  	//** CUSTOM ADDITION TO YOAST FUNCTION
+		    var custom_field_content = '';
+		    var enabled_custom_fields = ['<?php echo join( "','", $fieldnames ); ?>'];
+		    jQuery.each( enabled_custom_fields, function(i,val){
+		    	//get values for acf fields
+		    	if( jQuery("#acf-"+val).length ){
+		    		fields = jQuery('#acf-'+val).find('input,select,textarea');
+		    	}
+		    	//get values for normal fields
+		    	else{
+		    		fields = jQuery('input[type=text]:not(.deleted)').filter( function(){return jQuery(this).val()==val} ).parents('tr').find('textarea');
+		    	}
+	    		fields.each(function(i,el){
+	    			custom_field_content += ' '+jQuery(el).val(); 
+	    		})
+		    });
+		    jQuery('#postcustomstuff input[type=text]:visible').each(function(){
+		    	if( jQuery.inArray( jQuery(this).val(), enabled_custom_fields ) > -1 ){
+		    		custom_field_content += jQuery(this).parents('tr').find('textarea').val() + ' ';
+		    	}
+		    })
+		    //** END CUSTOM ADDITION
+				
+		    if (focuskw != '') {
+				var html = '<p>' + objectL10n.keyword_header + '<br />';
+				html += objectL10n.article_header_text + ptest( jQuery('#title').val(), p ) + '<br/>';
+				html += objectL10n.page_title_text + ptest( jQuery('#wpseosnippet .title').text(), p ) + '<br/>';
+				html += objectL10n.page_url_text + ptest( url, p2 ) + '<br/>';
+				html += objectL10n.content_text + ptest( jQuery('#content').val()+custom_field_content, p ) + '<br/>';
+				html += objectL10n.meta_description_text + ptest( metadesc, p );
+				html += '</p>';
+		        jQuery('#focuskwresults').html(html);
+		    } else {
+		        jQuery('#focuskwresults').html('');
+		    }
+		}
+		</script>
+	  <?php
+	  }
 	}
 	
 	/*************************************
