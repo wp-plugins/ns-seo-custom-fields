@@ -18,7 +18,7 @@ For architecturally-advanced sites that use ACF (Advanced Custom Fields) or anot
 
 With this plugin, you can specify up to 3 custom fields that you'd like to count as "content" (works for normal posts, pages AND custom post types!) when keyword scoring takes place. Say hello to accurate keyword statistics again.
 
-If you want even more functionality, like including custom fields in Yoast's automatic meta descriptions, or specifiying unlimited custom fields, [check out our Pro version!](https://neversettle.iljmp.com/1/ns-automation-for-wordpress-seo)
+If you want even more functionality, like support for ACF Repeater and Flexible Content fields, including custom fields in Yoast's automatic meta descriptions, or specifiying unlimited custom fields, [check out our Pro version!](https://neversettle.iljmp.com/1/ns-automation-for-wordpress-seo)
 
 == Installation ==
 
