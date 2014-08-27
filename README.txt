@@ -14,6 +14,8 @@ Include content from custom fields in the Yoast WordPress SEO plugin's keyword a
 
 Ever wanted to have your custom fields evaluated as part of the post's content in the Yoast WordPress SEO plugin's keyword statistics? With NS Custom Fields for Wordpress SEO, now you can!
 
+https://www.youtube.com/watch?v=t1QeiohhU8Y
+
 For architecturally-advanced sites that use ACF (Advanced Custom Fields) or another post meta framework to store different parts of a post's content, WordPress SEO's usually-helpful keyword statistics can become skewed since they don't take keywords in all that custom field content into account.
 
 With this plugin, you can specify up to 3 custom fields that you'd like to count as "content" (works for normal posts, pages AND custom post types!) when keyword scoring takes place. Say hello to accurate keyword statistics again.
@@ -36,6 +38,10 @@ If you want even more functionality, like support for ACF Repeater and Flexible 
 
 == Changelog ==
 
+= 2.1.3 =
+* Added link detection in custom fields (so links will be counted properly for Yoast's "outbound links" stat)
+* Updated for compatibility with latest version of WP SEO by Yoast (>=1.5.4)
+
 = 2.1.2 =
 * Added custom field support to the live, at-a-glance keyword stats on the General tab of the Yoast metabox
 
@@ -43,4 +49,8 @@ If you want even more functionality, like support for ACF Repeater and Flexible 
 * First public release
 
 == Upgrade Notice ==
+
+= 2.1.3 =
+* Added link detection in custom fields (so links will be counted properly for Yoast's "outbound links" stat)
+* Updated for compatibility with latest version of WP SEO by Yoast (>=1.5.4)
 

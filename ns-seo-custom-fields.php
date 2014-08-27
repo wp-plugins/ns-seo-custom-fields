@@ -4,7 +4,7 @@ Plugin Name: NS Custom Fields Analysis for WordPress SEO
 Plugin URI: http://neversettle.it
 Description: Include content from custom fields in the Yoast WordPress SEO plugin keyword analysis (WordPress SEO by Yoast is required).
 Author: Never Settle
-Version: 2.1.2
+Version: 2.1.3
 Author URI: http://neversettle.it
 License: GPLv2 or later
 */
@@ -59,8 +59,6 @@ class NS_SEO_Custom_Fields {
 	 */
 	 
 	 function setup_plugin(){
-	 	wp_register_style( 'ns-seo-custom', plugins_url("css/ns-seo-custom.css",__FILE__), false, '1.0.0' );
-	 	wp_register_script( 'ns-seo-custom', plugins_url("js/ns-seo-custom.js",__FILE__), false, '1.0.0' );
 	 	load_plugin_textdomain( 'ns-seo-custom', false, $this->path."lang/" ); 
 	 }
 	
@@ -95,6 +93,8 @@ class NS_SEO_Custom_Fields {
 	}
 
 	function admin_assets($page){
+	 	wp_register_style( 'ns-seo-custom', plugins_url("css/ns-seo-custom.css",__FILE__), false, '1.0.0' );
+	 	wp_register_script( 'ns-seo-custom', plugins_url("js/ns-seo-custom.js",__FILE__), false, '1.0.0' );
 		if( $page=='seo_page_ns_seo_custom' ){
 			wp_enqueue_style( 'ns-seo-custom' );
 			wp_enqueue_script( 'ns-seo-custom' );
@@ -115,8 +115,8 @@ class NS_SEO_Custom_Fields {
 	function register_settings_page(){
 		add_submenu_page(
 			'wpseo_dashboard',
-			__('NS Custom Analysis','ns-seo-custom'),
-			__('NS Custom Analysis','ns-seo-custom'),
+			__('NS Custom Fields','ns-seo-custom'),
+			__('NS Custom Fields','ns-seo-custom'),
 			'manage_options',
 			'ns_seo_custom',
 			array( $this, 'show_settings_page' )
@@ -198,6 +198,7 @@ class NS_SEO_Custom_Fields {
 					<ul class="ns-pro-features">
 						<li>Ability to include an unlimted # of custom fields</li>
 						<li>Option to set different fields for each post type</li>
+						<li>Full support for ACF repeater, flex & gallery fields</li>
 						<li>Effortlessly formulate meta descriptions from custom fields</li>
 					</ul>
 					<p class="cloner-adopter">
@@ -232,7 +233,12 @@ class NS_SEO_Custom_Fields {
 	function add_fields_to_analysis( $content ){
 		$post_id = $_GET['post'];
 		foreach(get_option('ns_seo_custom_fieldname') as $fieldname){
-			$content .= " " . get_post_meta( $post_id, $fieldname, true );
+			// get meta
+			$meta = get_post_meta( $post_id, $fieldname, true );
+			// autodetect outbound links
+			$meta = preg_replace( '/((http|https)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}((\/|\?)[\w\/#&?%~]*)?)/', '<a href="$1">$1</a>', $meta );
+			// append it to the content
+			$content .= " $meta";
 		}
 		return $content;
 	}
@@ -246,65 +252,61 @@ class NS_SEO_Custom_Fields {
 			$('.deletemeta').click(function(){
 				$(this).parents('tr').find('input[type=text]').addClass('deleted');
 			});
-			$('#newmeta-submit').click( testFocusKw );
-			$('#yoast_wpseo_focuskw').keyup( testFocusKw );
-			$('#postcustomstuff, .acf_postbox').find('input,textarea,select').change( testFocusKw )
+			$('#newmeta-submit').click( yst_testFocusKw );
+			$('#yoast_wpseo_focuskw').keyup( yst_testFocusKw );
+			$('#postcustomstuff, .acf_postbox').find('input,textarea,select').change( yst_testFocusKw )
 		})
-		function testFocusKw() {
-			// don't try to run if L10n isn't loaded
-			if(typeof objectL10n =='undefined') return;
+		yst_testFocusKw = function() {
+			//** CUSTOM ADDITION TO YOAST FUNCTION
+			var custom_field_content = '';
+			var enabled_custom_fields = ['<?php echo join( "','", $fieldnames ); ?>'];
+			jQuery.each( enabled_custom_fields, function(i,val){
+				//get values for acf fields
+				if( jQuery("#acf-"+val+', .acf-field[data-name="'+val+'"]').length ){
+					fields = jQuery('#acf-'+val+', .acf-field[data-name="'+val+'"]').find('input,select,textarea');
+				}
+				//get values for normal fields
+				else{
+					fields = jQuery('input[type=text]:not(.deleted)').filter( function(){return jQuery(this).val()==val} ).parents('tr').find('textarea');
+				}
+				fields.each(function(i,el){
+					custom_field_content += ' '+jQuery(el).val(); 
+				})
+			});
+			jQuery('#postcustomstuff input[type=text]:visible').each(function(){
+				if( jQuery.inArray( jQuery(this).val(), enabled_custom_fields ) > -1 ){
+					custom_field_content += jQuery(this).parents('tr').find('textarea').val() + ' ';
+				}
+			})
+			//** END CUSTOM ADDITION
 					
-		    // Retrieve focus keyword and trim
-		    var focuskw = jQuery.trim( jQuery('#yoast_wpseo_focuskw').val() );
-		    focuskw = focuskw.toLowerCase();
+			var focuskw = jQuery.trim(jQuery('#'+wpseoMetaboxL10n.field_prefix+'focuskw').val());
+			focuskw = yst_escapeFocusKw(focuskw).toLowerCase();
 		
-		    var postname = jQuery('#editable-post-name-full').text();
-		    var url	= wpseo_permalink_template.replace('%postname%', postname).replace('http://','');
+			var postname = jQuery('#editable-post-name-full').text();
+			var url = wpseoMetaboxL10n.wpseo_permalink_template.replace('%postname%', postname).replace('http://', '');
 		
-		    p = new RegExp("(^|[ \s\n\r\t\.,'\(\"\+;!?:\-])"+focuskw+"($|[ \s\n\r\t.,'\)\"\+!?:;\-])",'gim');
-		    //remove diacritics of a lower cased focuskw for url matching in foreign lang
-		    var focuskwNoDiacritics = removeLowerCaseDiacritics( focuskw );
-		    p2 = new RegExp(focuskwNoDiacritics.replace(/\s+/g,"[-_\\\//]"),'gim');
+			var p = new RegExp("(^|[ \s\n\r\t\.,'\(\"\+;!?:\-])" + focuskw + "($|[ \s\n\r\t.,'\)\"\+!?:;\-])", 'gim');
+			//remove diacritics of a lower cased focuskw for url matching in foreign lang
+			var focuskwNoDiacritics = removeLowerCaseDiacritics(focuskw);
+			var p2 = new RegExp(focuskwNoDiacritics.replace(/\s+/g, "[-_\\\//]"), 'gim');
 		
-		    var metadesc = jQuery('#yoast_wpseo_metadesc').val();
-		    if ( metadesc == '' )
-		        metadesc = jQuery('#wpseosnippet .desc').text();
-		    
-		  	//** CUSTOM ADDITION TO YOAST FUNCTION
-		    var custom_field_content = '';
-		    var enabled_custom_fields = ['<?php echo join( "','", $fieldnames ); ?>'];
-		    jQuery.each( enabled_custom_fields, function(i,val){
-		    	//get values for acf fields
-		    	if( jQuery("#acf-"+val).length ){
-		    		fields = jQuery('#acf-'+val).find('input,select,textarea');
-		    	}
-		    	//get values for normal fields
-		    	else{
-		    		fields = jQuery('input[type=text]:not(.deleted)').filter( function(){return jQuery(this).val()==val} ).parents('tr').find('textarea');
-		    	}
-	    		fields.each(function(i,el){
-	    			custom_field_content += ' '+jQuery(el).val(); 
-	    		})
-		    });
-		    jQuery('#postcustomstuff input[type=text]:visible').each(function(){
-		    	if( jQuery.inArray( jQuery(this).val(), enabled_custom_fields ) > -1 ){
-		    		custom_field_content += jQuery(this).parents('tr').find('textarea').val() + ' ';
-		    	}
-		    })
-		    //** END CUSTOM ADDITION
-				
-		    if (focuskw != '') {
-				var html = '<p>' + objectL10n.keyword_header + '<br />';
-				html += objectL10n.article_header_text + ptest( jQuery('#title').val(), p ) + '<br/>';
-				html += objectL10n.page_title_text + ptest( jQuery('#wpseosnippet .title').text(), p ) + '<br/>';
-				html += objectL10n.page_url_text + ptest( url, p2 ) + '<br/>';
-				html += objectL10n.content_text + ptest( jQuery('#content').val()+custom_field_content, p ) + '<br/>';
-				html += objectL10n.meta_description_text + ptest( metadesc, p );
-				html += '</p>';
-		        jQuery('#focuskwresults').html(html);
-		    } else {
-		        jQuery('#focuskwresults').html('');
-		    }
+			var focuskwresults = jQuery('#focuskwresults');
+			var	metadesc = jQuery('#wpseosnippet').find('.desc span.content').text();
+		
+			if (focuskw != '') {
+				var html = '<p>' + wpseoMetaboxL10n.keyword_header + '</p>';
+				html += '<ul>';
+				html += '<li>' + wpseoMetaboxL10n.article_header_text + ptest(jQuery('#title').val(), p) + '</li>';
+				html += '<li>' + wpseoMetaboxL10n.page_title_text + ptest(jQuery('#wpseosnippet_title').text(), p) + '</li>';
+				html += '<li>' + wpseoMetaboxL10n.page_url_text + ptest(url, p2) + '</li>';
+				html += '<li>' + wpseoMetaboxL10n.content_text + ptest(jQuery('#content').val()+custom_field_content, p) + '</li>';
+				html += '<li>' + wpseoMetaboxL10n.meta_description_text + ptest(metadesc, p) + '</li>';
+				html += '</ul>';
+				focuskwresults.html(html);
+			} else {
+				focuskwresults.html('');
+			}
 		}
 		</script>
 	  <?php
