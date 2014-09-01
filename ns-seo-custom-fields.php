@@ -4,7 +4,7 @@ Plugin Name: NS Custom Fields Analysis for WordPress SEO
 Plugin URI: http://neversettle.it
 Description: Include content from custom fields in the Yoast WordPress SEO plugin keyword analysis (WordPress SEO by Yoast is required).
 Author: Never Settle
-Version: 2.1.3
+Version: 2.1.4
 Author URI: http://neversettle.it
 License: GPLv2 or later
 */
@@ -258,21 +258,24 @@ class NS_SEO_Custom_Fields {
 		})
 		yst_testFocusKw = function() {
 			//** CUSTOM ADDITION TO YOAST FUNCTION
-			var custom_field_content = '';
+			var custom_field_content = ' ';
 			var enabled_custom_fields = ['<?php echo join( "','", $fieldnames ); ?>'];
+			//get values for acf fields + any other postmeta frameworks which use the fieldname as the name attribute of the input
 			jQuery.each( enabled_custom_fields, function(i,val){
-				//get values for acf fields
 				if( jQuery("#acf-"+val+', .acf-field[data-name="'+val+'"]').length ){
-					fields = jQuery('#acf-'+val+', .acf-field[data-name="'+val+'"]').find('input,select,textarea');
+					var acf_fields = jQuery('#acf-'+val+', .acf-field[data-name="'+val+'"]').find('input,select,textarea').not('input[type=button],input[type=password],input[type=hidden]');
+					var other_fields = jQuery('input,select,textarea').not('input[type=button],input[type=password],input[type=hidden]').filter( function(i,el){
+						if( jQuery(el).attr('name') ){
+							return jQuery(el).attr('name').match(new RegExp('^'+val+'($|\\[)'));
+						}
+						return false;
+					});
+					acf_fields.add(other_fields).each(function(i,el){
+						custom_field_content += ' '+jQuery(el).val(); 
+					});
 				}
-				//get values for normal fields
-				else{
-					fields = jQuery('input[type=text]:not(.deleted)').filter( function(){return jQuery(this).val()==val} ).parents('tr').find('textarea');
-				}
-				fields.each(function(i,el){
-					custom_field_content += ' '+jQuery(el).val(); 
-				})
 			});
+			// get values for default wp meta fields
 			jQuery('#postcustomstuff input[type=text]:visible').each(function(){
 				if( jQuery.inArray( jQuery(this).val(), enabled_custom_fields ) > -1 ){
 					custom_field_content += jQuery(this).parents('tr').find('textarea').val() + ' ';
@@ -293,7 +296,7 @@ class NS_SEO_Custom_Fields {
 		
 			var focuskwresults = jQuery('#focuskwresults');
 			var	metadesc = jQuery('#wpseosnippet').find('.desc span.content').text();
-		
+
 			if (focuskw != '') {
 				var html = '<p>' + wpseoMetaboxL10n.keyword_header + '</p>';
 				html += '<ul>';

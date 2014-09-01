@@ -38,6 +38,9 @@ If you want even more functionality, like support for ACF Repeater and Flexible 
 
 == Changelog ==
 
+= 2.1.4 = 
+* Added bugfix / enhancement for more accurate keyword counting in the Yoast "General" preview panel
+
 = 2.1.3 =
 * Added link detection in custom fields (so links will be counted properly for Yoast's "outbound links" stat)
 * Updated for compatibility with latest version of WP SEO by Yoast (>=1.5.4)
