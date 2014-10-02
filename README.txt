@@ -20,13 +20,13 @@ For architecturally-advanced sites that use ACF (Advanced Custom Fields) or anot
 
 With this plugin, you can specify up to 3 custom fields that you'd like to count as "content" (works for normal posts, pages AND custom post types!) when keyword scoring takes place. Say hello to accurate keyword statistics again.
 
-If you want even more functionality, like support for ACF Repeater and Flexible Content fields, including custom fields in Yoast's automatic meta descriptions, or specifiying unlimited custom fields, [check out our Pro version!](https://neversettle.iljmp.com/1/ns-automation-for-wordpress-seo)
+If you want even more functionality, like support for ACF Repeater and Flexible Content fields, including custom fields in Yoast's automatic meta descriptions, or specifiying unlimited custom fields, [check out our Pro version!](http://neversettle.it/ns-automation)
 
 == Installation ==
 
 1. Log in to your WordPress site as an administrator
 2. Ensure that [WordPress SEO by Yoast](http://wordpress.org/plugins/wordpress-seo) is installed.
-3. Use the built-in Plugins tools to install NS Cloner from the repository or Upload the ns-cloner directory to the /wp-content/plugins/ directory
+3. Use the built-in Plugins tools to install from the repository or unzip and Upload the plugin directory to /wp-content/plugins/ 
 4. Activate the plugin through the 'Plugins' menu in WordPress
 5. Access the plugin settings in the admin menu via **SEO** > **Custom Fields Analysis**
 6. Enter the post_meta key(s) of the custom field(s) you'd like to be included in content keyword scoring.
@@ -37,6 +37,9 @@ If you want even more functionality, like support for ACF Repeater and Flexible 
 2. Diagram of where to find the right custom field names to use and where you'll see the updated keyword statistics. 
 
 == Changelog ==
+
+= 2.1.5 =
+* Bugfix for is_readable warning caused by translation directory not being present (no translations in it yet)
 
 = 2.1.4 = 
 * Added bugfix / enhancement for more accurate keyword counting in the Yoast "General" preview panel

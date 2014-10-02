@@ -4,7 +4,7 @@ Plugin Name: NS Custom Fields Analysis for WordPress SEO
 Plugin URI: http://neversettle.it
 Description: Include content from custom fields in the Yoast WordPress SEO plugin keyword analysis (WordPress SEO by Yoast is required).
 Author: Never Settle
-Version: 2.1.4
+Version: 2.1.5
 Author URI: http://neversettle.it
 License: GPLv2 or later
 */
@@ -39,7 +39,7 @@ class NS_SEO_Custom_Fields {
 		
 		$this->path = plugin_dir_path( __FILE__ );
 		$this->wp_plugin_page = "http://wordpress.org/plugins/ns-seo-custom-fields";
-		$this->ns_plugin_page = "https://neversettle.iljmp.com/1/ns-automation-plugin";
+		$this->ns_plugin_page = "http://neversettle.it/ns-automation-wp-seo";
 		$this->social_desc = "Power up WordPress SEO (by Yoast) with Custom Field Automation!";
 		
 		add_action( 'plugins_loaded', array($this, 'setup_plugin') );
@@ -59,7 +59,7 @@ class NS_SEO_Custom_Fields {
 	 */
 	 
 	 function setup_plugin(){
-	 	load_plugin_textdomain( 'ns-seo-custom', false, $this->path."lang/" ); 
+	 	//load_plugin_textdomain( 'ns-seo-custom', false, $this->path."lang/" ); 
 	 }
 	
 	function admin_notices(){
