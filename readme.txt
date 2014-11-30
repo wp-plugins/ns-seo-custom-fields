@@ -39,7 +39,7 @@ If you want even more functionality, like support for ACF Repeater and Flexible 
 == Changelog ==
 
 = 2.1.6 =
-* Fixed bug with new posts where the post ID is not yet available in GET and so we need to use global post instead
+* Fixed bug with new posts where the post ID is not yet available in GET and so we need to use global post instead. Thank you @tncdesigns for the catch and fix suggestion!
 
 = 2.1.5 =
 * Bugfix for is_readable warning caused by translation directory not being present (no translations in it yet)
