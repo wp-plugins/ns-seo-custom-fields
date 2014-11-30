@@ -4,7 +4,7 @@ Plugin Name: NS Custom Fields Analysis for WordPress SEO
 Plugin URI: http://neversettle.it
 Description: Include content from custom fields in the Yoast WordPress SEO plugin keyword analysis (WordPress SEO by Yoast is required).
 Author: Never Settle
-Version: 2.1.5
+Version: 2.1.6
 Author URI: http://neversettle.it
 License: GPLv2 or later
 */
@@ -231,7 +231,11 @@ class NS_SEO_Custom_Fields {
 	
 	// Mod yoast keyword analysis php function to support custom fields
 	function add_fields_to_analysis( $content ){
-		$post_id = $_GET['post'];
+		// Thank you @tncdesigns for this fix that allows this to work on New Post edit page before an ID exists
+		//-------------------------------------------------------------------
+		global $post;
+		$post_id = isset($_GET['post']) ? $_GET['post'] : $post->ID;
+		//-------------------------------------------------------------------
 		foreach(get_option('ns_seo_custom_fieldname') as $fieldname){
 			// get meta
 			$meta = get_post_meta( $post_id, $fieldname, true );

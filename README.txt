@@ -3,7 +3,7 @@ Contributors: neversettle
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RM625PKSQGCCY&rm=2
 Tags: yoast, wordpress seo, seo, custom fields, acf
 Requires at least: 3.3
-Tested up to: 3.9.2
+Tested up to: 4.0.1
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -37,6 +37,9 @@ If you want even more functionality, like support for ACF Repeater and Flexible 
 2. Diagram of where to find the right custom field names to use and where you'll see the updated keyword statistics. 
 
 == Changelog ==
+
+= 2.1.6 =
+* Fixed bug with new posts where the post ID is not yet available in GET and so we need to use global post instead
 
 = 2.1.5 =
 * Bugfix for is_readable warning caused by translation directory not being present (no translations in it yet)
