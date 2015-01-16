@@ -22,6 +22,8 @@ With this plugin, you can specify up to 3 custom fields that you'd like to count
 
 If you want even more functionality, like support for ACF Repeater and Flexible Content fields, including custom fields in Yoast's automatic meta descriptions, or specifiying unlimited custom fields, [check out our Pro version!](http://neversettle.it/ns-automation)
 
+Many thanks to Ogi Djuraskovic of [FirstSiteGuide.com](http://firstsiteguide.com/) for providing a Serbian translation.
+
 == Installation ==
 
 1. Log in to your WordPress site as an administrator
@@ -37,6 +39,9 @@ If you want even more functionality, like support for ACF Repeater and Flexible 
 2. Diagram of where to find the right custom field names to use and where you'll see the updated keyword statistics. 
 
 == Changelog ==
+
+= 2.1.6.1 =
+* Added Serbian translation
 
 = 2.1.6 =
 * Fixed bug with new posts where the post ID is not yet available in GET and so we need to use global post instead. Thank you @tncdesigns for the catch and fix suggestion!

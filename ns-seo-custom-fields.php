@@ -4,7 +4,7 @@ Plugin Name: NS Custom Fields Analysis for WordPress SEO
 Plugin URI: http://neversettle.it
 Description: Include content from custom fields in the Yoast WordPress SEO plugin keyword analysis (WordPress SEO by Yoast is required).
 Author: Never Settle
-Version: 2.1.6
+Version: 2.1.6.1
 Author URI: http://neversettle.it
 License: GPLv2 or later
 */
@@ -59,7 +59,7 @@ class NS_SEO_Custom_Fields {
 	 */
 	 
 	 function setup_plugin(){
-	 	//load_plugin_textdomain( 'ns-seo-custom', false, $this->path."lang/" ); 
+	 	load_plugin_textdomain( 'ns-seo-custom', false, dirname(plugin_basename(__FILE__)).'/lang' ); 
 	 }
 	
 	function admin_notices(){
@@ -68,24 +68,24 @@ class NS_SEO_Custom_Fields {
 			//if yoast is not installed, tell them to add yoast
 			if( !is_plugin_active('wordpress-seo/wp-seo.php') ){
 				$message =
-					__('Thanks for activating NS Custom Fields for WordPress SEO! ','ns-seo-custom').
-					__('Please be aware that this plugin will not function until you install ').
-					   '<a href="http://wordpress.org/plugins/wordpress-seo/">Yoast WordPress SEO</a>. ';
+					__('Thanks for activating NS Custom Fields for WordPress SEO!','ns-seo-custom').
+					'&nbsp;'.
+					sprintf( __('Please be aware that this plugin will not function until you install <a target="_blank" href="%s">Yoast WordPress SEO</a>.','ns-seo-custom'), 'http://wordpress.org/plugins/wordpress-seo/' ).
+					'&nbsp;';
 				$message .=	get_current_screen()->is_network?
-					__('After you do that, you can access the plugin\'s settings in each site\'s menu via SEO > NS Custom Analysis.'):
-					__('After you do that, you can access this plugin\'s settings in the menu via SEO > NS Custom Analysis.');				;
+					__('After you do that, you can access the plugin\'s settings in each site\'s menu via SEO > NS Custom Analysis.','ns-seo-custom'):
+					__('After you do that, you can access this plugin\'s settings in the menu via SEO > NS Custom Analysis.','ns-seo-custom');
 			}
 			//if yoast is installed, tell them where to find plugin settings
 			else{
-				$message = __(
+				$message =
 					__('Thanks for activating NS Custom Fields for WordPress SEO! ','ns-seo-custom').
 					   '<a href="'.admin_url('admin.php?page=ns_seo_custom').'">'.
 					   		(get_current_screen()->is_network?
 					   			__('Visit the settings page (SEO > NS Custom Analysis) on each site to set it up.','ns-seo-custom'):
 					   			__('Visit the settings page (SEO > NS Custom Analysis) to set it up.','ns-seo-custom')
 					   		).
-					   '</a>'
-				);
+					   '</a>';
 			}	
 			echo "<div class='updated'><p>$message</p></div>";
 			add_option('ns_seo_custom_installed',true);
@@ -126,7 +126,7 @@ class NS_SEO_Custom_Fields {
 	function show_settings_page(){
 		?>
 		<div class="wrap">
-			<h2><?php $this->plugin_image( 'banner.jpg', __('NS Custom Field Analysis Settings') ); ?></h2>
+			<h2><?php $this->plugin_image( 'banner.jpg', __('NS Custom Field Analysis Settings','ns-seo-custom') ); ?></h2>
 			
 			<!-- BEGIN Left Column -->
 			<div class="ns-col-left">
@@ -215,7 +215,12 @@ class NS_SEO_Custom_Fields {
 	}
 
 	function show_settings_field($args){
-		$saved_values = get_option('ns_seo_custom_fieldname');
+		$saved_values = (array) get_option('ns_seo_custom_fieldname');
+		for( $x=0; $x<3; $x++ ){
+			if( !isset($saved_values[$x]) ){
+				$saved_values[$x] = '';
+			}
+		}
 		foreach( array($saved_values[0],$saved_values[1],$saved_values[2]) as $value){
 			echo '<input type="text" name="ns_seo_custom_fieldname[]" value="'.$value.'" /><br/>';
 		}
@@ -236,13 +241,16 @@ class NS_SEO_Custom_Fields {
 		global $post;
 		$post_id = isset($_GET['post']) ? $_GET['post'] : $post->ID;
 		//-------------------------------------------------------------------
-		foreach(get_option('ns_seo_custom_fieldname') as $fieldname){
-			// get meta
-			$meta = get_post_meta( $post_id, $fieldname, true );
-			// autodetect outbound links
-			$meta = preg_replace( '/((http|https)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}((\/|\?)[\w\/#&?%~]*)?)/', '<a href="$1">$1</a>', $meta );
-			// append it to the content
-			$content .= " $meta";
+		// Also thank you to @tncdesigns for fix that prevents invalid array error if no fieldnames are set
+		if( is_array(get_option('ns_seo_custom_fieldname')) ){
+			foreach(get_option('ns_seo_custom_fieldname') as $fieldname){
+				// get meta
+				$meta = get_post_meta( $post_id, $fieldname, true );
+				// autodetect outbound links
+				$meta = preg_replace( '/(?<!href=[\'"])((http|https)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}((\/|\?)[\w\/#&?%~]*)?)/', '<a href="$1">$1</a>', (string)$meta );
+				// append it to the content
+				$content .= " " .(string)$meta;
+			}
 		}
 		return $content;
 	}
