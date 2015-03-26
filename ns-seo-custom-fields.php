@@ -288,7 +288,7 @@ class NS_SEO_Custom_Fields {
 				}
 				// get values for wp-types fields and other fields that use ID
 				if( jQuery("#poststuff #"+val).length ){
-					custom_field_content += ' '+jQuery("[name='wpcf["+val+"]']").val();
+					custom_field_content += ' '+jQuery("#poststuff #"+val).val();
 				}
 			});
 			// get values for default wp meta fields
