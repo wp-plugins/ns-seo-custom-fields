@@ -4,7 +4,7 @@ Plugin Name: NS Custom Fields Analysis for WordPress SEO
 Plugin URI: http://neversettle.it
 Description: Include content from custom fields in the Yoast WordPress SEO plugin keyword analysis (WordPress SEO by Yoast is required).
 Author: Never Settle
-Version: 2.1.6.1
+Version: 2.1.6.2
 Author URI: http://neversettle.it
 License: GPLv2 or later
 */
@@ -272,8 +272,8 @@ class NS_SEO_Custom_Fields {
 			//** CUSTOM ADDITION TO YOAST FUNCTION
 			var custom_field_content = ' ';
 			var enabled_custom_fields = ['<?php echo join( "','", $fieldnames ); ?>'];
-			//get values for acf fields + any other postmeta frameworks which use the fieldname as the name attribute of the input
 			jQuery.each( enabled_custom_fields, function(i,val){
+				//get values for acf fields
 				if( jQuery("#acf-"+val+', .acf-field[data-name="'+val+'"]').length ){
 					var acf_fields = jQuery('#acf-'+val+', .acf-field[data-name="'+val+'"]').find('input,select,textarea').not('input[type=button],input[type=password],input[type=hidden]');
 					var other_fields = jQuery('input,select,textarea').not('input[type=button],input[type=password],input[type=hidden]').filter( function(i,el){
@@ -285,6 +285,10 @@ class NS_SEO_Custom_Fields {
 					acf_fields.add(other_fields).each(function(i,el){
 						custom_field_content += ' '+jQuery(el).val(); 
 					});
+				}
+				// get values for wp-types fields and other fields that use ID
+				if( jQuery("#poststuff #"+val).length ){
+					custom_field_content += ' '+jQuery("[name='wpcf["+val+"]']").val();
 				}
 			});
 			// get values for default wp meta fields

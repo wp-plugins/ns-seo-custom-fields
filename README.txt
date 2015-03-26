@@ -40,6 +40,9 @@ Many thanks to Ogi Djuraskovic of [FirstSiteGuide.com](http://firstsiteguide.com
 
 == Changelog ==
 
+= 2.1.6.2 =
+* Added support for WP Types fields in focus keyword quick view
+
 = 2.1.6.1 =
 * Added Serbian translation
 
