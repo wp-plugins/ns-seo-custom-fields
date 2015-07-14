@@ -264,11 +264,11 @@ class NS_SEO_Custom_Fields {
 			$('.deletemeta').click(function(){
 				$(this).parents('tr').find('input[type=text]').addClass('deleted');
 			});
-			$('#newmeta-submit').click( yst_testFocusKw );
-			$('#yoast_wpseo_focuskw').keyup( yst_testFocusKw );
-			$('#postcustomstuff, .acf_postbox').find('input,textarea,select').change( yst_testFocusKw )
+			$('#newmeta-submit').click( ystTestFocusKw );
+			$('#yoast_wpseo_focuskw').keyup( ystTestFocusKw );
+			$('#postcustomstuff, .acf_postbox').find('input,textarea,select').change( ystTestFocusKw )
 		})
-		yst_testFocusKw = function() {
+		ystTestFocusKw = function() {
 			//** CUSTOM ADDITION TO YOAST FUNCTION
 			var custom_field_content = ' ';
 			var enabled_custom_fields = ['<?php echo join( "','", $fieldnames ); ?>'];
